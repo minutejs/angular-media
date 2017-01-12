@@ -1,0 +1,116 @@
+<div class="box box-lg">
+    <span class="pull-right"><a href="" ng-click="hide()"><i class="fa fa-times"></i></a></span>
+    <div class="box-body" ng-if="!!data.uploading">
+        <br>
+        <div class="progress">
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 90%">
+                <span translate="">Saving changes..</span>
+            </div>
+        </div>
+    </div>
+    <div ng-if="!data.uploading">
+        <div class="box-body">
+            <div class="tabs-panel" ng-init="data.tabs = {}">
+                <ul class="nav nav-tabs">
+                    <li ng-class="{active: tab === data.tabs.selectedTab}" ng-repeat="tab in data.args.tabs" ng-init="data.tabs.selectedTab = data.tabs.selectedTab || tab">
+                        <a href="" ng-click="data.tabs.selectedTab = tab">{{tab | ucfirst}}</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade in active" ng-repeat="tab in data.args.tabs" ng-if="tab === data.tabs.selectedTab">
+                        <ng-switch on="tab == 'images' || tab == 'videos'">
+                            <div ng-switch-when="true">
+                                <form class="form-horizontal" ng-submit="ctrl.search(tab, data.term)">
+                                    <div style="margin-bottom: 10px;">
+                                        <div class="input-group">
+                                            <div class="input-group-btn hidden-xs">
+                                                <div class="btn-group">
+                                                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                                                        <span class="caret"></span>
+                                                        <span data-bind="label" id="searchLabel" class="ng-binding">
+                                                            {{data.license[tab] === 'creativeCommon' && 'CC' || 'All'}} {{tab}}
+                                                        </span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" role="menu">
+                                                        <li>
+                                                            <a href="" ng-click="data.license[tab] ='any'">
+                                                                <i class="fa fa-fw {{(!data.license[tab] || data.license[tab] === 'any') && 'fa-check' || ''}}"></i> Any license
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="" ng-click="data.license[tab] = 'creativeCommon'">
+                                                                <i class="fa fa-fw {{data.license[tab] === 'creativeCommon' && 'fa-check' || ''}}"></i>
+                                                                <abbr title="Creative commons (attribution)">CC</abbr> license only
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <input type="search" class="form-control ng-pristine ng-untouched ng-valid ng-valid-required" ng-model="data.term" placeholder="Search keywords..."
+                                                   ng-required="true"
+                                                   required="required">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-danger" ng-show="data.searching" ng-click="ctrl.abort()"><i class="fa fa-refresh fa-spin"></i> Searching..</button>
+                                                <button type="submit" class="btn btn-success btn-go ng-hide" id="image-search-button" ng-show="!data.searching"><i class="fa fa-search"></i> Go!
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="pre-scrollable" id="search-results" style="overflow-x: hidden; overflow-y: auto; padding-right: 15px;">
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-4 col-md-3 col-lg-3 item" ng-repeat="result in data.results[tab]">
+                                                <div class="thumbnail" ng-class="{'alert-warning': ctrl.isSelected(result.src)}" ng-show="!result.fail"
+                                                     ng-dblclick="ctrl.preview(tab, result.src)">
+                                                    <img ng-src="{{result.thumbnail}}" class="thumb" style="height: 100px !important;" ng-click="ctrl.select(result.src)">
+
+                                                    <div class="truncated text-small {{!!data.args.multiple && 'checkbox' || 'radio'}}">
+                                                        <label title="{{result.title}}">
+                                                            <input type="radio" ng-model="data.source" value="{{result.src}}" ng-if="!data.args.multiple" />
+                                                            <input type="checkbox" ng-model="data.sources[result.src]" ng-if="!!data.args.multiple" />
+                                                            {{((result.title || data.term) | truncate:50)}}
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div ng-switch-default="">
+                                <minute-uploader ng-model="data.ignore" type="other" label="Upload photos / video.." accept=".png, .jpg, .jpeg, .gif, .avi, .mov, .wmv, .mp4, .flv"
+                                                 multiple="{{data.args.multiple}}" on-upload="ctrl.upload"></minute-uploader>
+
+
+                                <div ng-init="uploadList = []" ng-show="!!uploadList.length">
+                                    <h3><span translate="">Your uploads</span></h3>
+                                    <ul class="list-group">
+                                        <li class="list-group-item" ng-repeat="upload in ctrl.getUploads() as uploadList track by $index">
+                                            {{ctrl.baseName(upload)}}
+                                            <div class="pull-right">
+                                                <minute-preview src="upload" type="{{ctrl.getType(upload)}}"></minute-preview>
+                                                <a href="" ng-click="ctrl.removeUpload(upload)"><i class="fa fa-trash"></i></a>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </ng-switch>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="box-footer with-border">
+            <div class="pull-left text-sm">
+                <i class="fa fa-lightbulb-o"></i> <span translate="">Double click thumbnail to preview</span>
+            </div>
+
+            <button type="button" class="btn btn-flat btn-primary pull-right text-bold" ng-disabled="!ctrl.hasSource()" ng-click="ctrl.submit()">
+                <i class="fa fa-check-circle"></i> <span translate>Use selected</span>
+            </button>
+        </div>
+    </div>
+</div>
