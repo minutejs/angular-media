@@ -3,10 +3,11 @@
 module App {
     export class AngularMedia implements ng.IServiceProvider {
         constructor() {
-            this.$get.$inject = ['$rootScope', '$q', '$http', '$timeout', '$ui', '$search', '$preview'];
+            this.$get.$inject = ['$rootScope', '$q', '$http', '$timeout', '$ui', '$search', '$preview', '$youtube'];
         }
 
-        $get = ($rootScope: ng.IRootScopeService, $q: ng.IQService, $http: ng.IHttpService, $timeout: ng.ITimeoutService, $ui: any, $search: any, $preview: any) => {
+        $get = ($rootScope: ng.IRootScopeService, $q: ng.IQService, $http: ng.IHttpService, $timeout: ng.ITimeoutService, $ui: any, $search: any, $preview: any,
+                $youtube: any) => {
             let service: any = {};
 
             service.popup = (query = 'keyword', args: any = {tabs: ['images', 'videos', 'upload',], multiple: true, autoSearch: true, proxy: true, withMetadata: true}) => {
@@ -87,7 +88,12 @@ module App {
                         if (type == 'images') {
                             $preview.lightbox([url]);
                         } else {
-                            window.open(url, '_blank');
+                            if (/youtube\.com/i.test(url)) {
+                                console.log("$youtube: ", $youtube);
+                                $youtube.popup(url);
+                            } else {
+                                window.open(url, '_blank');
+                            }
                         }
                     },
                     upload: (sources) => {
@@ -171,6 +177,6 @@ module App {
         }
     }
 
-    angular.module('AngularMedia', ['MinuteFramework', 'AngularSearch'])
+    angular.module('AngularMedia', ['MinuteFramework', 'AngularSearch', 'AngularYouTubePopup'])
         .provider("$media", AngularMedia);
 }

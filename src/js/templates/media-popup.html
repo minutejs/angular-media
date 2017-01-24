@@ -80,7 +80,7 @@
                             </div>
                             <div ng-switch-default="">
                                 <minute-uploader ng-model="data.ignore" type="other" label="Upload photos / video.." accept=".png, .jpg, .jpeg, .gif, .avi, .mov, .wmv, .mp4, .flv"
-                                                 multiple="{{data.args.multiple}}" on-upload="ctrl.upload"></minute-uploader>
+                                                 multiple="{{data.args.multiple}}" on-upload="ctrl.upload" url="true"></minute-uploader>
 
 
                                 <div ng-init="uploadList = []" ng-show="!!uploadList.length">
@@ -109,7 +109,7 @@
             </div>
 
             <button type="button" class="btn btn-flat btn-primary pull-right text-bold" ng-disabled="!ctrl.hasSource()" ng-click="ctrl.submit()">
-                <i class="fa fa-check-circle"></i> <span translate>Use selected</span>
+                <i class="fa fa-check-circle"></i> <span translate>Use selected</span> <span ng-show="ctrl.getSelected().length > 1">({{ctrl.getSelected().length}})</span>
             </button>
         </div>
     </div>

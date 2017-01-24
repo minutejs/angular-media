@@ -3,7 +3,7 @@ var App;
 (function (App) {
     var AngularMedia = (function () {
         function AngularMedia() {
-            this.$get = function ($rootScope, $q, $http, $timeout, $ui, $search, $preview) {
+            this.$get = function ($rootScope, $q, $http, $timeout, $ui, $search, $preview, $youtube) {
                 var service = {};
                 service.popup = function (query, args) {
                     if (query === void 0) { query = 'keyword'; }
@@ -81,7 +81,13 @@ var App;
                                 $preview.lightbox([url]);
                             }
                             else {
-                                window.open(url, '_blank');
+                                if (/youtube\.com/i.test(url)) {
+                                    console.log("$youtube: ", $youtube);
+                                    $youtube.popup(url);
+                                }
+                                else {
+                                    window.open(url, '_blank');
+                                }
                             }
                         },
                         upload: function (sources) {
@@ -161,11 +167,11 @@ var App;
                 };
                 return service.init();
             };
-            this.$get.$inject = ['$rootScope', '$q', '$http', '$timeout', '$ui', '$search', '$preview'];
+            this.$get.$inject = ['$rootScope', '$q', '$http', '$timeout', '$ui', '$search', '$preview', '$youtube'];
         }
         return AngularMedia;
     }());
     App.AngularMedia = AngularMedia;
-    angular.module('AngularMedia', ['MinuteFramework', 'AngularSearch'])
+    angular.module('AngularMedia', ['MinuteFramework', 'AngularSearch', 'AngularYouTubePopup'])
         .provider("$media", AngularMedia);
 })(App || (App = {}));
