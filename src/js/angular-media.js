@@ -62,7 +62,7 @@ var App;
                                     data.results[type] = results;
                                     angular.forEach(results, function (result) { return data.metadata[result.src] = result; });
                                 });
-                                promise.finally(function () { return data.searching = false; });
+                                promise["finally"](function () { return data.searching = false; });
                             }
                         },
                         abort: function () {
